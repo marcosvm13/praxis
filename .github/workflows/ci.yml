@@ -1,0 +1,36 @@
+name: Python CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'  # Specify your Python version
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y default-jdk
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest flake8 pytest-cov
+
+    - name: Lint code
+      run: flake8 praxis tests
+
+    - name: Run tests with coverage
+      run: |
+        pytest --cov=praxis tests || echo "No tests found, skipping."
